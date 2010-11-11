@@ -4,6 +4,15 @@
 Florenicon_Players = {};
 Florenicon_Labels = {};
 Florenicon_Heals = {};
+Florenicon_NoFlowerCounter = 0;
+
+function Florenicon_ClearList()
+	local c = #(Florenicon_Players);
+	for i = 1, c do
+		table.remove( Florenicon_Players );
+		table.remove( Florenicon_Heals );
+	end
+end
 
 function Florenicon_isListed( name )
 	local c = #(Florenicon_Players);
@@ -104,14 +113,30 @@ function Florenicon_OnEvent( obj, event, ... )
 	if combatEvent == "SPELL_AURA_APPLIED" then
 		if spellId == 81262 then
 			Florenicon_addToList( destName );
+
+			Florenicon_NoFlowerCounter = 0;
 		end
 	elseif combatEvent == "SPELL_AURA_REMOVED" then
 		if spellId == 81262 then
 			Florenicon_delFromList( destName );
+
+			Florenicon_NoFlowerCounter = 0;
 		end
 	elseif combatEvent == "SPELL_HEAL" then
 		if sourceName == "Effloresence" then
 			Florenicon_setHealAmount( destName, amount - overheal );
+
+			Florenicon_NoFlowerCounter = 0;
+		end
+	else
+		local c = #(Florenicon_Players);
+		if c > 0 then
+			Florenicon_NoFlowerCounter = Florenicon_NoFlowerCounter + 1;
+
+			if Florenicon_NoFlowerCounter > 50 then
+				Florenicon_ClearList();
+				Florenicon_NoFlowerCounter = 0;
+			end
 		end
 	end
 
