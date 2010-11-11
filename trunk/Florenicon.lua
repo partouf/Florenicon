@@ -57,7 +57,7 @@ function Florenicon_showListOnFrame( obj )
 			label = CreateFrame("SimpleHtml");
 			label:SetParent(obj);
 			label:SetFont('Fonts\\FRIZQT__.TTF', 11);
-			label:SetWidth(100);
+			label:SetWidth(220);
 			label:SetHeight(22);
 			label:SetPoint("TOPLEFT", 20, -5 + i * -12);
 			if Florenicon_Heals[i] > 0 then
@@ -100,14 +100,14 @@ end
 --        the healing entity as Effloresence
 function Florenicon_OnEvent( obj, event, ... )
 	if event == "COMBAT_LOG_EVENT_UNFILTERED" then
-		local timestamp, combatEvent, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags, _, spellName, _, amount, overheal = ...;
+		local timestamp, combatEvent, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags, spellId, spellName, _, amount, overheal = ...;
 
 		if combatEvent == "SPELL_AURA_APPLIED" then
-			if spellName == "Efflorescence" then
+			if spellId == 81262 then
 				Florenicon_addToList( destName );
 			end
 		elseif combatEvent == "SPELL_AURA_REMOVED" then
-			if spellName == "Efflorescence" then
+			if spellId == 81262 then
 				Florenicon_delFromList( destName );
 			end
 		elseif combatEvent == "SPELL_HEAL" then

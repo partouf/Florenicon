@@ -2,7 +2,7 @@
   <Script file="Florenicon.lua" />
   <Frame name="FloreniconFrame" parent="UIParent" movable="true" resizable="true" frameStrata="DIALOG" enableMouse="true">
     <Size>
-      <AbsDimension x="200" y="50" />
+      <AbsDimension x="300" y="50" />
     </Size>
     <Anchors>
       <Anchor point="TOPLEFT">
