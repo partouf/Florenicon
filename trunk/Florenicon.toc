@@ -1,0 +1,6 @@
+## Title: Florenicon
+## Version: 1.0
+## Author: Kwast
+## Interface: 40000
+
+Florenicon.xml

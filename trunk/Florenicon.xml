@@ -1,0 +1,33 @@
+﻿<Ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.blizzard.com/wow/ui/">
+  <Script file="Florenicon.lua" />
+  <Frame name="FloreniconFrame" parent="UIParent" movable="true" resizable="true" frameStrata="DIALOG" enableMouse="true">
+    <Size>
+      <AbsDimension x="200" y="50" />
+    </Size>
+    <Anchors>
+      <Anchor point="TOPLEFT">
+        <Offset x="592" y="-186" />
+      </Anchor>
+    </Anchors>
+    <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+      <BackgroundInsets>
+        <AbsInset left="11" right="12" top="12" bottom="11" />
+      </BackgroundInsets>
+      <TileSize>
+        <AbsValue val="32" />
+      </TileSize>
+      <EdgeSize>
+        <AbsValue val="32" />
+      </EdgeSize>
+    </Backdrop>
+    <Scripts>
+      <OnLoad>
+        Florenicon_OnLoad(self);
+        self:RegisterForDrag("LeftButton");
+      </OnLoad>
+      <OnEvent function="Florenicon_OnEvent" />
+      <OnDragStart>self:StartMoving();</OnDragStart>
+      <OnDragStop>self:StopMovingOrSizing();</OnDragStop>
+    </Scripts>
+  </Frame>
+</Ui>
