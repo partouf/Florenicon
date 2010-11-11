@@ -99,25 +99,23 @@ end
 -- note: the aura is written as Efflorescence
 --        the healing entity as Effloresence
 function Florenicon_OnEvent( obj, event, ... )
-	if event == "COMBAT_LOG_EVENT_UNFILTERED" then
-		local timestamp, combatEvent, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags, spellId, spellName, _, amount, overheal = ...;
+	local timestamp, combatEvent, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags, spellId, spellName, _, amount, overheal = ...;
 
-		if combatEvent == "SPELL_AURA_APPLIED" then
-			if spellId == 81262 then
-				Florenicon_addToList( destName );
-			end
-		elseif combatEvent == "SPELL_AURA_REMOVED" then
-			if spellId == 81262 then
-				Florenicon_delFromList( destName );
-			end
-		elseif combatEvent == "SPELL_HEAL" then
-			if sourceName == "Effloresence" then
-				Florenicon_setHealAmount( destName, amount - overheal );
-			end
+	if combatEvent == "SPELL_AURA_APPLIED" then
+		if spellId == 81262 then
+			Florenicon_addToList( destName );
 		end
-
-		Florenicon_showListOnFrame(obj);
+	elseif combatEvent == "SPELL_AURA_REMOVED" then
+		if spellId == 81262 then
+			Florenicon_delFromList( destName );
+		end
+	elseif combatEvent == "SPELL_HEAL" then
+		if sourceName == "Effloresence" then
+			Florenicon_setHealAmount( destName, amount - overheal );
+		end
 	end
+
+	Florenicon_showListOnFrame(obj);
 end
 
 
