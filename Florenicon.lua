@@ -4,7 +4,36 @@
 Florenicon_Players = {};
 Florenicon_Labels = {};
 Florenicon_Heals = {};
-Florenicon_NoFlowerCounter = 0;
+
+
+-- simple timer
+
+Florenicon_Timers = {};
+function Florenicon_Schedule( t, f, arg1 )
+	local now = GetTime();
+	local task = { now + t, f, arg1 };
+	table.insert( Florenicon_Timers, task );
+end
+
+function Florenicon_CheckTasks()
+	local c = #(Florenicon_Timers);
+	local i = 1;
+	while i <= c do
+		local task = Florenicon_Timers[i];
+		if GetTime() > task[1] then
+			table.remove( Florenicon_Timers, i );
+			c = c - 1;
+			i = i - 1;
+
+			local f = task[2];
+			local arg1 = task[3];
+			f( arg1 );
+		end
+		i = i + 1;
+	end
+end
+
+--
 
 function Florenicon_ClearList()
 	local c = #(Florenicon_Players);
@@ -108,35 +137,23 @@ end
 -- note: the aura is written as Efflorescence
 --        the healing entity as Effloresence
 function Florenicon_OnEvent( obj, event, ... )
+	Florenicon_CheckTasks();
+	
 	local timestamp, combatEvent, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags, spellId, spellName, _, amount, overheal = ...;
 
 	if combatEvent == "SPELL_AURA_APPLIED" then
 		if spellId == 81262 then
 			Florenicon_addToList( destName );
-
-			Florenicon_NoFlowerCounter = 0;
+			
+			Florenicon_Schedule( 15, Florenicon_delFromList, destName );
 		end
 	elseif combatEvent == "SPELL_AURA_REMOVED" then
 		if spellId == 81262 then
 			Florenicon_delFromList( destName );
-
-			Florenicon_NoFlowerCounter = 0;
 		end
 	elseif combatEvent == "SPELL_HEAL" then
 		if sourceName == "Effloresence" then
 			Florenicon_setHealAmount( destName, amount - overheal );
-
-			Florenicon_NoFlowerCounter = 0;
-		end
-	else
-		local c = #(Florenicon_Players);
-		if c > 0 then
-			Florenicon_NoFlowerCounter = Florenicon_NoFlowerCounter + 1;
-
-			if Florenicon_NoFlowerCounter > 50 then
-				Florenicon_ClearList();
-				Florenicon_NoFlowerCounter = 0;
-			end
 		end
 	end
 
