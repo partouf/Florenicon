@@ -12,7 +12,7 @@ Florenicon_Timers = {};
 function Florenicon_Schedule( t, f, arg1 )
 	local now = GetTime();
 	local task = { now + t, f, arg1 };
-	table.insert( Florenicon_Timers, task );
+	tinsert( Florenicon_Timers, task );
 end
 
 function Florenicon_CheckTasks()
@@ -21,15 +21,15 @@ function Florenicon_CheckTasks()
 	while i <= c do
 		local task = Florenicon_Timers[i];
 		if GetTime() > task[1] then
-			table.remove( Florenicon_Timers, i );
+			tremove( Florenicon_Timers, i );
 			c = c - 1;
-			i = i - 1;
 
 			local f = task[2];
 			local arg1 = task[3];
 			f( arg1 );
+		else
+			i = i + 1;
 		end
-		i = i + 1;
 	end
 end
 
@@ -38,8 +38,8 @@ end
 function Florenicon_ClearList()
 	local c = #(Florenicon_Players);
 	for i = 1, c do
-		table.remove( Florenicon_Players );
-		table.remove( Florenicon_Heals );
+		tremove( Florenicon_Players );
+		tremove( Florenicon_Heals );
 	end
 end
 
@@ -55,8 +55,8 @@ end
 
 function Florenicon_addToList( name )
 	if Florenicon_isListed(name) == 0 then
-		table.insert( Florenicon_Players, name );
-		table.insert( Florenicon_Heals, 0 );
+		tinsert( Florenicon_Players, name );
+		tinsert( Florenicon_Heals, 0 );
 	end
 end
 
@@ -64,8 +64,8 @@ function Florenicon_delFromList( name )
 	local c = #(Florenicon_Players);
 	for i = 1, c do
 		if Florenicon_Players[i] == name then
-			table.remove( Florenicon_Players, i );
-			table.remove( Florenicon_Heals, i );
+			tremove( Florenicon_Players, i );
+			tremove( Florenicon_Heals, i );
 			break;
 		end
 	end
@@ -90,14 +90,16 @@ function Florenicon_showListOnFrame( obj )
 		obj:SetHeight( h );
 	end
 	
+	local y = -5;
 	for i = 1, d do
+		y = y - 12;
 		if i > c then
 			label = CreateFrame("SimpleHtml");
 			label:SetParent(obj);
 			label:SetFont('Fonts\\FRIZQT__.TTF', 11);
 			label:SetWidth(220);
 			label:SetHeight(22);
-			label:SetPoint("TOPLEFT", 20, -5 + i * -12);
+			label:SetPoint("TOPLEFT", 20, y);
 			if Florenicon_Heals[i] > 0 then
 				label:SetText( "|c0000ff00"..i..". "..Florenicon_Players[i].." ("..Florenicon_Heals[i]..")");
 			else
@@ -105,10 +107,10 @@ function Florenicon_showListOnFrame( obj )
 			end
 			label:Show();
 			
-			table.insert( Florenicon_Labels, label );
+			tinsert( Florenicon_Labels, label );
 		else
 			label = Florenicon_Labels[i];
-			label:SetPoint("TOPLEFT", 20, -5 + i * -12);
+			label:SetPoint("TOPLEFT", 20, y);
 			if Florenicon_Heals[i] > 0 then
 				label:SetText( "|c0000ff00"..i..". "..Florenicon_Players[i].." ("..Florenicon_Heals[i]..")");
 			else
@@ -126,10 +128,6 @@ function Florenicon_showListOnFrame( obj )
 end
 
 function Florenicon_OnLoad( obj )
-	if DEFAULT_CHAT_FRAME then
-		DEFAULT_CHAT_FRAME:AddMessage( "Florenicon loaded", 1.0, 0.0, 0.0);
-	end
-
 	obj:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
 end
 
@@ -156,7 +154,7 @@ function Florenicon_OnEvent( obj, event, ... )
 			Florenicon_setHealAmount( destName, amount - overheal );
 		end
 	end
-
+	
 	Florenicon_showListOnFrame(obj);
 end
 
