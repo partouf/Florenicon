@@ -132,8 +132,6 @@ function Florenicon_OnLoad( obj )
 end
 
 
--- note: the aura is written as Efflorescence
---        the healing entity as Effloresence
 function Florenicon_OnEvent( obj, event, ... )
 	Florenicon_CheckTasks();
 	
@@ -150,7 +148,8 @@ function Florenicon_OnEvent( obj, event, ... )
 			Florenicon_delFromList( destName );
 		end
 	elseif combatEvent == "SPELL_HEAL" then
-		if sourceName == "Effloresence" then
+		--spell was fixed in 4.0.3(a?) and is no longer a special entity anymore, but is a different spell instead
+		if spellId == 81269 then
 			Florenicon_setHealAmount( destName, amount - overheal );
 		end
 	end
