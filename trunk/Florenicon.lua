@@ -5,6 +5,8 @@ Florenicon_Players = {};
 Florenicon_Labels = {};
 Florenicon_Heals = {};
 
+iMode = 0;
+iSpellTime = 0;
 
 -- simple timer
 
@@ -13,6 +15,20 @@ function Florenicon_Schedule( t, f, arg1 )
 	local now = GetTime();
 	local task = { now + t, f, arg1 };
 	tinsert( Florenicon_Timers, task );
+end
+
+function Florenicon_Unschedule( arg1 )
+	local c = #(Florenicon_Timers);
+	local i = 1;
+	while i <= c do
+		local task = Florenicon_Timers[i];
+		if arg1 == task[3] then
+			tremove( Florenicon_Timers, i );
+			c = c - 1;
+		else
+			i = i + 1;
+		end
+	end
 end
 
 function Florenicon_CheckTasks()
@@ -128,6 +144,15 @@ function Florenicon_showListOnFrame( obj )
 end
 
 function Florenicon_OnLoad( obj )
+	locClass, enClass = UnitClass( "PLAYER" );
+	
+	iMode = 0;
+	iSpellTime = 15;
+	if enClass == "PRIEST" then
+		iMode = 1;
+		iSpellTime = 2;
+	end
+
 	obj:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
 end
 
@@ -137,20 +162,36 @@ function Florenicon_OnEvent( obj, event, ... )
 	
 	local timestamp, combatEvent, sourceGUID, sourceName, sourceFlags, destGUID, destName, destFlags, spellId, spellName, _, amount, overheal = ...;
 
-	if combatEvent == "SPELL_AURA_APPLIED" then
-		if spellId == 81262 then
-			Florenicon_addToList( destName );
-			
-			Florenicon_Schedule( 15, Florenicon_delFromList, destName );
+	if iMode == 1 then
+		--12/2 23:51:23.837  SPELL_CAST_START,0x01000000031D0634,"Skyr",0x512,0x0000000000000000,nil,0x80000000,88685,"Holy Word: Sanctuary",0x2
+		if combatEvent == "SPELL_HEAL" then
+			-- "Holy Word: Sanctuary"
+			if spellId == 88686 then
+				Florenicon_Unschedule( destName );
+
+				Florenicon_addToList( destName );
+				Florenicon_setHealAmount( destName, amount - overheal );
+
+				Florenicon_Schedule( iSpellTime, Florenicon_delFromList, destName );
+			end
 		end
-	elseif combatEvent == "SPELL_AURA_REMOVED" then
-		if spellId == 81262 then
-			Florenicon_delFromList( destName );
-		end
-	elseif combatEvent == "SPELL_HEAL" then
-		--spell was fixed in 4.0.3(a?) and is no longer a special entity anymore, but is a different spell instead
-		if spellId == 81269 then
-			Florenicon_setHealAmount( destName, amount - overheal );
+	else
+		if combatEvent == "SPELL_AURA_APPLIED" then
+			-- "Efflorescence"
+			if spellId == 81262 then
+				Florenicon_addToList( destName );
+				
+				Florenicon_Schedule( iSpellTime, Florenicon_delFromList, destName );
+			end
+		elseif combatEvent == "SPELL_AURA_REMOVED" then
+			if spellId == 81262 then
+				Florenicon_delFromList( destName );
+			end
+		elseif combatEvent == "SPELL_HEAL" then
+			--spell was fixed in 4.0.3(a?) and is no longer a special entity anymore, but is a different spell instead
+			if spellId == 81269 then
+				Florenicon_setHealAmount( destName, amount - overheal );
+			end
 		end
 	end
 	
