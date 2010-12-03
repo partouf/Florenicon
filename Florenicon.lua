@@ -150,7 +150,7 @@ function Florenicon_OnLoad( obj )
 	iSpellTime = 15;
 	if enClass == "PRIEST" then
 		iMode = 1;
-		iSpellTime = 2;
+		iSpellTime = 3;
 	end
 
 	obj:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
