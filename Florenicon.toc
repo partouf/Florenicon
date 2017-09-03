@@ -1,5 +1,5 @@
 ## Title: Florenicon
-## Version: 1.8
+## Version: 1.9
 ## Author: Kwast
 ## Interface: 70300
 ## X-Curse-Packaged-Version: v1.8
