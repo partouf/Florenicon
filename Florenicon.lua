@@ -54,6 +54,10 @@ function Florenicon_LeaveCombat()
 
 	if Florenicon_Log then
 		local playercount = #(Florenicon_CurrentCombat_StatsPP);
+		if playercount == 0 then
+			return;
+		end
+		
 		local totalhealamount = 0;
 		local totalticks = 0;
 		local maximumticks = 0;
@@ -76,10 +80,12 @@ function Florenicon_LeaveCombat()
 		local crithealperc = floor(totalcritticks / totalticks * 100);
 
 		if DEFAULT_CHAT_FRAME then
-			DEFAULT_CHAT_FRAME:AddMessage("Florenicon stats", 0.0, 1.0, 0.0);
+			DEFAULT_CHAT_FRAME:AddMessage("Florenicon stats (" .. Florenicon_MyName .. ")", 0.0, 1.0, 0.0);
 			DEFAULT_CHAT_FRAME:AddMessage(" - Effective amount healed: " .. totalhealamount .. " hp", 1.0, 1.0, 1.0);
+			DEFAULT_CHAT_FRAME:AddMessage(" - Amount of players healed: " .. playercount, 1.0, 1.0, 1.0);
 			DEFAULT_CHAT_FRAME:AddMessage(" - Average ticks per player: " .. averageticksperplayer, 1.0, 1.0, 1.0);
-			DEFAULT_CHAT_FRAME:AddMessage(" - Average spell worth: " .. totalaveragespellheal .. " hp", 1.0, 1.0, 1.0);
+			DEFAULT_CHAT_FRAME:AddMessage("Efflorescence spell stats (" .. Florenicon_MyName .. ")", 0.0, 1.0, 0.0);
+			DEFAULT_CHAT_FRAME:AddMessage(" - Potential healing power: " .. totalaveragespellheal .. " hp", 1.0, 1.0, 1.0);
 			DEFAULT_CHAT_FRAME:AddMessage(" - Crit chance: " .. crithealperc .. "%", 1.0, 1.0, 1.0);
 		end
 	end
