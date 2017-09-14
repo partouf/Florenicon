@@ -11,6 +11,23 @@ Florenicon_CurrentCombat_Start = 0;
 Florenicon_CurrentCombat_StatsPP = {};
 Florenicon_CurrentlyInCombat = false;
 
+Florenicon_SpellStart = 0;
+Florenicon_SpellTimeSum = 0;
+
+
+function Florenicon_SpellUp()
+	if Florenicon_SpellStart == 0 then
+		Florenicon_SpellTimeSum = 0;
+		Florenicon_SpellStart = GetTime();
+	end
+end
+
+function Florenicon_SpellDown()
+	if Florenicon_SpellStart > 0 then
+		Florenicon_SpellTimeSum = Florenicon_SpellTimeSum + (GetTime() - Florenicon_SpellStart);
+		Florenicon_SpellStart = 0;
+	end
+end
 
 function Florenicon_Stats_Find( playername )
 	for index, value in ipairs(Florenicon_CurrentCombat_StatsPP) do
@@ -27,6 +44,8 @@ function Florenicon_Stats_Add( playername )
 end
 
 function Florenicon_Stats_AddTick( playername, healamount, overhealamount, critted )
+	Florenicon_SpellUp();
+
 	local idxPlayer = Florenicon_Stats_Find(playername);
 	if idxPlayer == 0 then
 		Florenicon_Stats_Add(playername);
@@ -47,12 +66,26 @@ function Florenicon_EnterCombat()
 	wipe(Florenicon_CurrentCombat_StatsPP);
 
 	Florenicon_CurrentCombat_Start = GetTime();
+	
+	if (Florenicon_SpellStart > 0) then
+		Florenicon_SpellStart = 0;
+		Florenicon_SpellTimeSum = 0;
+		Florenicon_SpellUp();
+	end
 end
 
 function Florenicon_LeaveCombat()
 	Florenicon_CurrentlyInCombat = false;
 
 	if Florenicon_Log then
+		local totalspelltime = Florenicon_SpellTimeSum;
+		
+		if Florenicon_SpellStart > 0 then
+			Florenicon_SpellDown();
+			totalspelltime = Florenicon_SpellTimeSum;
+			Florenicon_SpellUp();
+		end
+
 		local playercount = #(Florenicon_CurrentCombat_StatsPP);
 		if playercount == 0 then
 			return;
@@ -64,6 +97,7 @@ function Florenicon_LeaveCombat()
 		local maximumhealamount = 0;
 		local totalspellhealamount = 0;
 		local totalcritticks = 0;
+		local totalcombattime = GetTime() - Florenicon_CurrentCombat_Start;
 
 		for index, value in ipairs(Florenicon_CurrentCombat_StatsPP) do
 			totalticks = totalticks + value[2];
@@ -78,9 +112,15 @@ function Florenicon_LeaveCombat()
 		local averageticksperplayer = floor(totalticks / playercount);
 		local totalaveragespellheal = floor(totalspellhealamount / totalticks);
 		local crithealperc = floor(totalcritticks / totalticks * 100);
+		
+		local uptime = floor(((totalspelltime / totalcombattime) * 10000)) / 100;
+		
+		local efficiency = floor(totalhealamount / (totalaveragespellheal * playercount * averageticksperplayer * (1 + (crithealperc / 100.0))) * 10000) / 100;
 
 		if DEFAULT_CHAT_FRAME then
 			DEFAULT_CHAT_FRAME:AddMessage("Florenicon stats (" .. Florenicon_MyName .. ")", 0.0, 1.0, 0.0);
+			DEFAULT_CHAT_FRAME:AddMessage(" - Uptime: " .. uptime .. "%", 1.0, 1.0, 1.0);
+			DEFAULT_CHAT_FRAME:AddMessage(" - Efficiency: " .. efficiency .. "%", 1.0, 1.0, 1.0);
 			DEFAULT_CHAT_FRAME:AddMessage(" - Effective amount healed: " .. totalhealamount .. " hp", 1.0, 1.0, 1.0);
 			DEFAULT_CHAT_FRAME:AddMessage(" - Amount of players healed: " .. playercount, 1.0, 1.0, 1.0);
 			DEFAULT_CHAT_FRAME:AddMessage(" - Average ticks per player: " .. averageticksperplayer, 1.0, 1.0, 1.0);
@@ -150,6 +190,8 @@ function Florenicon_CheckTasks()
 end
 
 function Florenicon_ClearList()
+	Florenicon_SpellDown();
+	
 	wipe(Florenicon_Players);
 	wipe(Florenicon_Heals);
 end
@@ -182,6 +224,10 @@ function Florenicon_delFromList( name )
 			tremove( Florenicon_Heals, i );
 			break;
 		end
+	end
+	
+	if (#(Florenicon_Players) == 0) then
+		Florenicon_SpellDown();
 	end
 end
 
@@ -246,7 +292,7 @@ function Florenicon_OnEvent( obj, event, ... )
 	Florenicon_CheckTasks();
 
 	local timestamp, combatEvent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, spellSchool, amount, overheal, absorb, crit = ...;
-
+	
 	if combatEvent == "SPELL_HEAL" then
 		if spellId == 81269 then
 			Florenicon_Unschedule( destName );
@@ -254,14 +300,14 @@ function Florenicon_OnEvent( obj, event, ... )
 			Florenicon_addToList( destName, amount - overheal );
 
 			if Florenicon_Log and (sourceName == Florenicon_MyName) then
-				Florenicon_Stats_AddTick( name, amount, overheal, crit );
+				Florenicon_Stats_AddTick( destName, amount, overheal, crit );
 			end
 
 			Florenicon_Schedule( Florenicon_delFromList, destName );
 		end
+	elseif Florenicon_Log and (combatEvent == "SPELL_CAST_SUCCESS") and (spellId == 81269) and (sourceName == Florenicon_MyName) then
+		Florenicon_SpellUp();
 	end
 
 	Florenicon_showListOnFrame(obj);
 end
-
-
