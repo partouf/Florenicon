@@ -250,6 +250,7 @@ function Florenicon_showListOnFrame( obj )
 			label = CreateFrame("SimpleHtml");
 			label:SetParent(obj);
 			label:SetFont('Fonts\\FRIZQT__.TTF', 11);
+			label:SetJustifyH("LEFT");
 			label:SetWidth(220);
 			label:SetHeight(22);
 			label:SetPoint("TOPLEFT", 20, y);
@@ -291,8 +292,8 @@ end
 function Florenicon_OnEvent( obj, event, ... )
 	Florenicon_CheckTasks();
 
-	local timestamp, combatEvent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, spellSchool, amount, overheal, absorb, crit = ...;
-	
+	local timestamp, combatEvent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, spellSchool, amount, overheal, absorb, crit = CombatLogGetCurrentEventInfo();
+
 	if combatEvent == "SPELL_HEAL" then
 		if spellId == 81269 then
 			Florenicon_Unschedule( destName );
