@@ -286,6 +286,15 @@ function Florenicon_OnLoad( obj )
 
 	Florenicon_MyName = UnitName( "PLAYER" );
 
+	if obj.SetBackdrop then
+		obj:SetBackdrop({
+			bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+			edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+			tile = true, tileEdge = true, tileSize = 32, edgeSize = 32,
+			insets = { left = 11, right = 12, top = 12, bottom = 11 },
+		});
+	end
+
 	obj:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
 end
 
